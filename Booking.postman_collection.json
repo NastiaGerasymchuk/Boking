@@ -14,7 +14,6 @@
 						"exec": [
 							"var jsonData = pm.response.json();\r",
 							"var token=jsonData.token;\r",
-							"console.log(jsonData)\r",
 							"pm.environment.set(\"bookin_token\", token);\r",
 							"pm.test(\"Status code is 200\", function () {\r",
 							"    pm.response.to.have.status(200);\r",
@@ -350,16 +349,16 @@
 							"pm.test(\"Status code is 200\", function () {\r",
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
-							"pm.test(\"First name is equal\", function () {\r",
-							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"pm.test(\"First name is changed\", function () {\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"new_first_name\");\r",
 							"    pm.expect(firstname).is.eq(givenFirstName);\r",
 							"});\r",
 							"pm.test(\"Last name is equal\", function () {\r",
 							"    var givenLastName=pm.collectionVariables.get(\"lastname\");\r",
 							"    pm.expect(lastname).is.eq(givenLastName);\r",
 							"});\r",
-							"pm.test(\"Total price is equal\", function () {\r",
-							"    var givenPrice=pm.collectionVariables.get(\"totalprice\");\r",
+							"pm.test(\"Total price is changed equal\", function () {\r",
+							"    var givenPrice=pm.collectionVariables.get(\"new_total_price\");\r",
 							"    pm.expect(totalprice).is.eq(givenPrice);\r",
 							"});\r",
 							"pm.test(\"Deposit paid equals\", function () {\r",
@@ -390,16 +389,16 @@
 			},
 			"request": {
 				"auth": {
-					"type": "bearer",
-					"bearer": [
+					"type": "basic",
+					"basic": [
 						{
-							"key": "token",
-							"value": "{{bookin_token}}",
+							"key": "password",
+							"value": "{{password}}",
 							"type": "string"
 						},
 						{
-							"key": "password",
-							"value": "{{token}}",
+							"key": "username",
+							"value": "{{user_name}}",
 							"type": "string"
 						}
 					]
@@ -408,7 +407,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"firstname\" : \"{{firstname}}\",\r\n    \"lastname\" : \"{{lastname}}\",\r\n    \"totalprice\" : {{new_total_price}},\r\n    \"depositpaid\" : {{depositpaid}},\r\n    \"bookingdates\" : {\r\n        \"checkin\" : \"{{checkin}}\",\r\n        \"checkout\" : \"{{checkout}}\"\r\n    },\r\n    \"additionalneeds\" : \"{{additionalneeds}}\"\r\n}",
+					"raw": "{\r\n    \"firstname\" : \"{{new_first_name}}\",\r\n    \"lastname\" : \"{{lastname}}\",\r\n    \"totalprice\" : {{new_total_price}},\r\n    \"depositpaid\" : {{depositpaid}},\r\n    \"bookingdates\" : {\r\n        \"checkin\" : \"{{checkin}}\",\r\n        \"checkout\" : \"{{checkout}}\"\r\n    },\r\n    \"additionalneeds\" : \"{{additionalneeds}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -442,7 +441,7 @@
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"pm.test(\"First name is equal\", function () {\r",
-							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"new_first_name\");\r",
 							"    pm.expect(firstname).is.eq(givenFirstName);\r",
 							"});\r",
 							"pm.test(\"Last name is equal\", function () {\r",
@@ -508,7 +507,7 @@
 			"response": []
 		},
 		{
-			"name": "Get all Copy",
+			"name": "Get all",
 			"event": [
 				{
 					"listen": "test",
@@ -519,16 +518,16 @@
 							"for(var item=0;item<jsonData.length;item++){\r",
 							"arrId[item]=(jsonData[item][\"bookingid\"])\r",
 							"}\r",
-							"pm.test(\"Count is more than 1\", function () {   \r",
-							"   var previousCount= pm.collectionVariables.get(\"previousCount\");\r",
-							"   var currentCount=arrId.length;    \r",
-							"    pm.expect(previousCount+1).is.eql(currentCount);\r",
+							"idCreatedBook=pm.collectionVariables.get(\"id_created_book\");\r",
+							"var bookCount=pm.collectionVariables.get(\"previousCount\");\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
-							"\r",
-							"\r",
-							"pm.test(\"Response contains new ID\", function () {\r",
-							"    var idCreatedBook=pm.collectionVariables.get(\"id_created_book\");\r",
+							"pm.test(\"New book is exist\", function () {\r",
 							"    pm.expect(arrId.includes(idCreatedBook)).is.true;\r",
+							"});\r",
+							"pm.test(\"Book count is more than beginning\", function () {\r",
+							"    pm.expect(bookCount).is.eql(arrId.length-1)\r",
 							"});\r",
 							""
 						],
@@ -583,21 +582,31 @@
 			],
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{user_name}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "DELETE",
 				"header": [
 					{
 						"key": "Content-Type",
 						"value": "application/json",
-						"type": "text",
-						"disabled": true
+						"type": "text"
 					},
 					{
 						"key": "Cookie",
 						"value": "token=abc123",
-						"type": "text",
-						"disabled": true
+						"type": "text"
 					}
 				],
 				"url": {
@@ -608,6 +617,65 @@
 					"path": [
 						"{{BOOKING_URL}}",
 						"{{id_created_book}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"var arrId=[];\r",
+							"for(var item=0;item<jsonData.length;item++){\r",
+							"arrId[item]=(jsonData[item][\"bookingid\"])\r",
+							"}\r",
+							"idCreatedBook=pm.collectionVariables.get(\"id_created_book\");\r",
+							"var bookCount=pm.collectionVariables.get(\"previousCount\");\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"New book is exist\", function () {\r",
+							"    pm.expect(arrId.includes(idCreatedBook)).is.false;\r",
+							"});\r",
+							"pm.test(\"Book is beginning\", function () {\r",
+							"    pm.expect(bookCount).is.eql(arrId.length)\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}"
 					]
 				}
 			},
@@ -674,6 +742,10 @@
 		{
 			"key": "previousCount",
 			"value": ""
+		},
+		{
+			"key": "new_first_name",
+			"value": "New Book"
 		}
 	]
 }
