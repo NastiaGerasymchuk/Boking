@@ -1,0 +1,679 @@
+{
+	"info": {
+		"_postman_id": "66ebd918-5bfb-4e04-9684-3d05a4f1947f",
+		"name": "Booking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authorization",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"var token=jsonData.token;\r",
+							"console.log(jsonData)\r",
+							"pm.environment.set(\"bookin_token\", token);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{user_name}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/{{AUT_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{AUT_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"var arrId=[];\r",
+							"for(var item=0;item<jsonData.length;item++){\r",
+							"arrId[item]=(jsonData[item][\"bookingid\"])\r",
+							"}\r",
+							"pm.collectionVariables.set(\"previousCount\", arrId.length);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var price=Number(pm.collectionVariables.get(\"totalprice\"));\r",
+							"pm.collectionVariables.set(\"totalprice\", price);\r",
+							"var deposit=Boolean(pm.collectionVariables.get(\"depositpaid\"));\r",
+							"pm.collectionVariables.set(\"depositpaid\",deposit);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var {bookingid,booking} = pm.response.json();\r",
+							"var {firstname,lastname,totalprice,depositpaid,bookingdates,additionalneeds}=booking;\r",
+							"var {checkin,checkout}=bookingdates;\r",
+							"\r",
+							"pm.collectionVariables.set(\"id_created_book\", bookingid);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Id is created\", function () {\r",
+							"    pm.expect(bookingid).not.null;\r",
+							"});\r",
+							"pm.test(\"First name is equal\", function () {\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"    pm.expect(firstname).is.eq(givenFirstName);\r",
+							"});\r",
+							"pm.test(\"Last name is equal\", function () {\r",
+							"    var givenLastName=pm.collectionVariables.get(\"lastname\");\r",
+							"    pm.expect(lastname).is.eq(givenLastName);\r",
+							"});\r",
+							"pm.test(\"Total price is equal\", function () {\r",
+							"    var givenPrice=pm.collectionVariables.get(\"totalprice\");\r",
+							"    pm.expect(totalprice).is.eq(givenPrice);\r",
+							"});\r",
+							"pm.test(\"Deposit paid equals\", function () {\r",
+							"    var givenDeposit=pm.collectionVariables.get(\"depositpaid\");\r",
+							"    pm.expect(depositpaid).is.eq(givenDeposit);\r",
+							"});\r",
+							"pm.test(\"CheckIn equals\", function () {\r",
+							"    var givenCheckIn=pm.collectionVariables.get(\"checkin\");\r",
+							"    pm.expect(checkin).is.eq(givenCheckIn);\r",
+							"});\r",
+							"pm.test(\"CheckOut equals\", function () {\r",
+							"    var givenCheckOut=pm.collectionVariables.get(\"checkout\");\r",
+							"    pm.expect(checkout).is.eq(givenCheckOut);\r",
+							"});\r",
+							"pm.test(\"Additional needs equals\", function () {\r",
+							"    var givenAdditionNeeds=pm.collectionVariables.get(\"additionalneeds\");\r",
+							"    pm.expect(additionalneeds).is.eq(givenAdditionNeeds);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstname\" : \"{{firstname}}\",\r\n    \"lastname\" : \"{{lastname}}\",\r\n    \"totalprice\" : {{totalprice}},\r\n    \"depositpaid\" : {{depositpaid}},\r\n    \"bookingdates\" : {\r\n        \"checkin\" : \"{{checkin}}\",\r\n        \"checkout\" : \"{{checkout}}\"\r\n    },\r\n    \"additionalneeds\" : \"{{additionalneeds}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get detail info about creted book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"var {firstname,lastname,totalprice,depositpaid,bookingdates,additionalneeds}=pm.response.json();\r",
+							"var {checkin,checkout}=bookingdates;\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"First name is equal\", function () {\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"    pm.expect(firstname).is.eq(givenFirstName);\r",
+							"});\r",
+							"pm.test(\"Last name is equal\", function () {\r",
+							"    var givenLastName=pm.collectionVariables.get(\"lastname\");\r",
+							"    pm.expect(lastname).is.eq(givenLastName);\r",
+							"});\r",
+							"pm.test(\"Total price is equal\", function () {\r",
+							"    var givenPrice=pm.collectionVariables.get(\"totalprice\");\r",
+							"    pm.expect(totalprice).is.eq(givenPrice);\r",
+							"});\r",
+							"pm.test(\"Deposit paid equals\", function () {\r",
+							"    var givenDeposit=pm.collectionVariables.get(\"depositpaid\");\r",
+							"    pm.expect(depositpaid).is.eq(givenDeposit);\r",
+							"});\r",
+							"pm.test(\"CheckIn equals\", function () {\r",
+							"    var givenCheckIn=pm.collectionVariables.get(\"checkin\");\r",
+							"    pm.expect(checkin).is.eq(givenCheckIn);\r",
+							"});\r",
+							"pm.test(\"CheckOut equals\", function () {\r",
+							"    var givenCheckOut=pm.collectionVariables.get(\"checkout\");\r",
+							"    pm.expect(checkout).is.eq(givenCheckOut);\r",
+							"});\r",
+							"pm.test(\"Additional needs equals\", function () {\r",
+							"    var givenAdditionNeeds=pm.collectionVariables.get(\"additionalneeds\");\r",
+							"    pm.expect(additionalneeds).is.eq(givenAdditionNeeds);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}/{{id_created_book}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}",
+						"{{id_created_book}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update book",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var price=Number(pm.collectionVariables.get(\"new_total_price\"));\r",
+							"pm.collectionVariables.set(\"new_total_price\", price);\r",
+							"var deposit=Boolean(pm.collectionVariables.get(\"depositpaid\"));\r",
+							"pm.collectionVariables.set(\"depositpaid\",deposit);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"var {firstname,lastname,totalprice,depositpaid,bookingdates,additionalneeds}=pm.response.json();\r",
+							"var {checkin,checkout}=bookingdates;\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"First name is equal\", function () {\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"    pm.expect(firstname).is.eq(givenFirstName);\r",
+							"});\r",
+							"pm.test(\"Last name is equal\", function () {\r",
+							"    var givenLastName=pm.collectionVariables.get(\"lastname\");\r",
+							"    pm.expect(lastname).is.eq(givenLastName);\r",
+							"});\r",
+							"pm.test(\"Total price is equal\", function () {\r",
+							"    var givenPrice=pm.collectionVariables.get(\"totalprice\");\r",
+							"    pm.expect(totalprice).is.eq(givenPrice);\r",
+							"});\r",
+							"pm.test(\"Deposit paid equals\", function () {\r",
+							"    var givenDeposit=pm.collectionVariables.get(\"depositpaid\");\r",
+							"    pm.expect(depositpaid).is.eq(givenDeposit);\r",
+							"});\r",
+							"pm.test(\"CheckIn equals\", function () {\r",
+							"    var givenCheckIn=pm.collectionVariables.get(\"checkin\");\r",
+							"    pm.expect(checkin).is.eq(givenCheckIn);\r",
+							"});\r",
+							"pm.test(\"CheckOut equals\", function () {\r",
+							"    var givenCheckOut=pm.collectionVariables.get(\"checkout\");\r",
+							"    pm.expect(checkout).is.eq(givenCheckOut);\r",
+							"});\r",
+							"pm.test(\"Additional needs equals\", function () {\r",
+							"    var givenAdditionNeeds=pm.collectionVariables.get(\"additionalneeds\");\r",
+							"    pm.expect(additionalneeds).is.eq(givenAdditionNeeds);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstname\" : \"{{firstname}}\",\r\n    \"lastname\" : \"{{lastname}}\",\r\n    \"totalprice\" : {{new_total_price}},\r\n    \"depositpaid\" : {{depositpaid}},\r\n    \"bookingdates\" : {\r\n        \"checkin\" : \"{{checkin}}\",\r\n        \"checkout\" : \"{{checkout}}\"\r\n    },\r\n    \"additionalneeds\" : \"{{additionalneeds}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}/{{id_created_book}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}",
+						"{{id_created_book}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get detail info about creted book Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"var {firstname,lastname,totalprice,depositpaid,bookingdates,additionalneeds}=pm.response.json();\r",
+							"var {checkin,checkout}=bookingdates;\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"First name is equal\", function () {\r",
+							"    var givenFirstName=pm.collectionVariables.get(\"firstname\");\r",
+							"    pm.expect(firstname).is.eq(givenFirstName);\r",
+							"});\r",
+							"pm.test(\"Last name is equal\", function () {\r",
+							"    var givenLastName=pm.collectionVariables.get(\"lastname\");\r",
+							"    pm.expect(lastname).is.eq(givenLastName);\r",
+							"});\r",
+							"pm.test(\"Total price is equal\", function () {\r",
+							"    var givenPrice=pm.collectionVariables.get(\"new_total_price\");\r",
+							"    pm.expect(totalprice).is.eq(givenPrice);\r",
+							"});\r",
+							"pm.test(\"Deposit paid equals\", function () {\r",
+							"    var givenDeposit=pm.collectionVariables.get(\"depositpaid\");\r",
+							"    pm.expect(depositpaid).is.eq(givenDeposit);\r",
+							"});\r",
+							"pm.test(\"CheckIn equals\", function () {\r",
+							"    var givenCheckIn=pm.collectionVariables.get(\"checkin\");\r",
+							"    pm.expect(checkin).is.eq(givenCheckIn);\r",
+							"});\r",
+							"pm.test(\"CheckOut equals\", function () {\r",
+							"    var givenCheckOut=pm.collectionVariables.get(\"checkout\");\r",
+							"    pm.expect(checkout).is.eq(givenCheckOut);\r",
+							"});\r",
+							"pm.test(\"Additional needs equals\", function () {\r",
+							"    var givenAdditionNeeds=pm.collectionVariables.get(\"additionalneeds\");\r",
+							"    pm.expect(additionalneeds).is.eq(givenAdditionNeeds);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}/{{id_created_book}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}",
+						"{{id_created_book}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"var arrId=[];\r",
+							"for(var item=0;item<jsonData.length;item++){\r",
+							"arrId[item]=(jsonData[item][\"bookingid\"])\r",
+							"}\r",
+							"pm.test(\"Count is more than 1\", function () {   \r",
+							"   var previousCount= pm.collectionVariables.get(\"previousCount\");\r",
+							"   var currentCount=arrId.length;    \r",
+							"    pm.expect(previousCount+1).is.eql(currentCount);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response contains new ID\", function () {\r",
+							"    var idCreatedBook=pm.collectionVariables.get(\"id_created_book\");\r",
+							"    pm.expect(arrId.includes(idCreatedBook)).is.true;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bookin_token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Cookie",
+						"value": "token=abc123",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{BASE_URL}}/{{BOOKING_URL}}/{{id_created_book}}",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"{{BOOKING_URL}}",
+						"{{id_created_book}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "firstname",
+			"value": "Jim"
+		},
+		{
+			"key": "lastname",
+			"value": "Brown"
+		},
+		{
+			"key": "totalprice",
+			"value": "111"
+		},
+		{
+			"key": "depositpaid",
+			"value": "true"
+		},
+		{
+			"key": "additionalneeds",
+			"value": "Breakfast"
+		},
+		{
+			"key": "checkin",
+			"value": "2018-01-01"
+		},
+		{
+			"key": "checkout",
+			"value": "2019-01-01"
+		},
+		{
+			"key": "id_created_book",
+			"value": ""
+		},
+		{
+			"key": "new_total_price",
+			"value": "888"
+		},
+		{
+			"key": "previousCount",
+			"value": ""
+		}
+	]
+}
